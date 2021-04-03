@@ -39,6 +39,8 @@ As a starting point we can look at a subset of the columns that contain only num
 
 ## Summarize column types and completeness of data by column.
 ```{r summarize_columns}
+class <- sapply(raw, function(x) class(x))
+is_na <- sapply(raw, function(x) any(is.na(x)))
 col_desc <- data.frame(name = names(raw), 
                        index = seq_along(names(raw)), 
                        class = class, 
@@ -70,16 +72,79 @@ That leaves us with 25 integer columns as candidate features
 and 27 numeric columns as candidate features. All of these columns have
 no missing data.
 
-We plan to start creating a prediction model with the integer features only.
-
 Since there are many predictor variables based on physical measurements, we can
 try alternate models based on:
-1) 25 integer variables only
-2) 27 numeric variables only
-3) 52 numeric and integer variables
+1. 25 integer variables only
+2. 27 numeric variables only
+3. 52 numeric and integer variables
 
 Cross validation and measuring in-sample accuracy should help us choose between
 these alternate models.
 
-We divide the original raw_training data into trainging an testing sets:
+We divide the original raw_training data into training and testing sets:
+```{r partition_the_data}
+set.seed(12345)
+inTrain <- createDataPartition(raw$classe, p=0.70, list=FALSE)
+training <- raw[inTrain,]
+testing <- raw[-inTrain,]
+dim(training)
+dim(testing)
+```
+
+
+Now we want to select feature subsets of the testing and training data
+
+```{r subset_features}
+training.integer = training[, int_only$index]
+testing.integer = testing[, int_only$index]
+training.numeric = training[, numeric_only$index]
+testing.numeric = testing[, numeric_only$index]
+all_numbers = c(int_only$index, numeric_only$index)
+training.all = training[, all_numbers]
+testing.all = testing[, all_numbers]
+dim(training.all)
+dim(testing.all)
+```
+
+
+Add the outcome variable classe back into the training data frames:
+```{r add_outcome_variable}
+training.integer <- training.integer %>% mutate(classe = training$classe)
+training.numeric <- training.numeric %>% mutate(classe = training$classe)
+training.all <- training.all %>% mutate(classe = training$classe)
+```
+
+
+## Try fitting each model with random forest
+```{r fit_integer_features, cache=TRUE }
+set.seed(2468)
+old <- Sys.time()
+integer.fit <- train(classe ~ ., 
+                data=training.integer,
+                method = 'rf',
+                trControl = trainControl(method='cv',
+                                         number=5))
+integer_fit_time <- Sys.time() - old
+```
+
+```{r}
+print(integer_fit_time)
+print(integer.fit)
+```
+
+```{r fit_numeric_features, cache=TRUE }
+set.seed(2468)
+old <- Sys.time()
+numeric.fit <- train(classe ~ ., 
+                data=training.numeric,
+                method = 'rf',
+                trControl = trainControl(method='cv',
+                                         number=5))
+numeric_fit_time <- Sys.time() - old
+```
+
+```{r}
+print(numeric_fit_time)
+print(numeric.fit)
+```
 

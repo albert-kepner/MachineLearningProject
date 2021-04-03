@@ -453,14 +453,75 @@ testing.numeric = testing[, numeric_only$index]
 all_numbers = c(int_only$index, numeric_only$index)
 training.all = training[, all_numbers]
 testing.all = testing[, all_numbers]
-dim(training.integer)</code></pre>
-<pre><code>## [1] 13737    25</code></pre>
-<pre class="r"><code>dim(testing.integer)</code></pre>
-<pre><code>## [1] 5885   25</code></pre>
-<pre class="r"><code>dim(training.all)</code></pre>
+dim(training.all)</code></pre>
 <pre><code>## [1] 13737    52</code></pre>
 <pre class="r"><code>dim(testing.all)</code></pre>
 <pre><code>## [1] 5885   52</code></pre>
+<p>Add the outcome variable classe back into the training data frames:</p>
+<pre class="r"><code>training.integer &lt;- training.integer %&gt;% mutate(classe = training$classe)
+training.numeric &lt;- training.numeric %&gt;% mutate(classe = training$classe)
+training.all &lt;- training.all %&gt;% mutate(classe = training$classe)</code></pre>
+</div>
+<div id="try-fitting-each-model-with-random-forest" class="section level2">
+<h2>Try fitting each model with random forest</h2>
+<pre class="r"><code>set.seed(2468)
+old &lt;- Sys.time()
+integer.fit &lt;- train(classe ~ ., 
+                data=training.integer,
+                method = &#39;rf&#39;,
+                trControl = trainControl(method=&#39;cv&#39;,
+                                         number=5))
+integer_fit_time &lt;- Sys.time() - old</code></pre>
+<pre class="r"><code>print(integer_fit_time)</code></pre>
+<pre><code>## Time difference of 3.632862 mins</code></pre>
+<pre class="r"><code>print(integer.fit)</code></pre>
+<pre><code>## Random Forest 
+## 
+## 13737 samples
+##    25 predictor
+##     5 classes: &#39;A&#39;, &#39;B&#39;, &#39;C&#39;, &#39;D&#39;, &#39;E&#39; 
+## 
+## No pre-processing
+## Resampling: Cross-Validated (5 fold) 
+## Summary of sample sizes: 10990, 10990, 10990, 10988, 10990 
+## Resampling results across tuning parameters:
+## 
+##   mtry  Accuracy   Kappa    
+##    2    0.9611281  0.9508140
+##   13    0.9608368  0.9504454
+##   25    0.9546483  0.9426164
+## 
+## Accuracy was used to select the optimal model using the largest value.
+## The final value used for the model was mtry = 2.</code></pre>
+<pre class="r"><code>set.seed(2468)
+old &lt;- Sys.time()
+numeric.fit &lt;- train(classe ~ ., 
+                data=training.numeric,
+                method = &#39;rf&#39;,
+                trControl = trainControl(method=&#39;cv&#39;,
+                                         number=5))
+numeric_fit_time &lt;- Sys.time() - old</code></pre>
+<pre class="r"><code>print(numeric_fit_time)</code></pre>
+<pre><code>## Time difference of 3.718942 mins</code></pre>
+<pre class="r"><code>print(numeric.fit)</code></pre>
+<pre><code>## Random Forest 
+## 
+## 13737 samples
+##    27 predictor
+##     5 classes: &#39;A&#39;, &#39;B&#39;, &#39;C&#39;, &#39;D&#39;, &#39;E&#39; 
+## 
+## No pre-processing
+## Resampling: Cross-Validated (5 fold) 
+## Summary of sample sizes: 10990, 10990, 10990, 10988, 10990 
+## Resampling results across tuning parameters:
+## 
+##   mtry  Accuracy   Kappa    
+##    2    0.9909736  0.9885815
+##   14    0.9911917  0.9888579
+##   27    0.9884257  0.9853594
+## 
+## Accuracy was used to select the optimal model using the largest value.
+## The final value used for the model was mtry = 14.</code></pre>
 </div>
 </div>
 
