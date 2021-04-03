@@ -28,11 +28,11 @@ We note that we have a lot of columns (160) from which to choose features for pr
 Some of the columns contain a lot of NA values. Some contain mostly blanks or garbage.
 
 For example:
+```{r sample_column}
 summary(raw$amplitude_yaw_forearm)
-        #DIV/0!    0.00 
-  19216      84     322 
-  
-  Many or most of the columns that are classed as factors by default are numeric data with some corrupt or missing values not marked as NA.
+```
+
+Many or most of the columns that are classed as factors by default are numeric data with some corrupt or missing values not marked as NA.
   
 As a starting point we can look at a subset of the columns that contain only numbers with no missing values.
 
@@ -48,7 +48,7 @@ col_desc <- data.frame(name = names(raw),
 head(col_desc)
 ```
 
-## Select subsets of columns based no missing data and integer or numeric content
+## Select subsets of columns based on no missing data and integer or numeric content
 ```{r select_subsets)}
 c <- col_desc
 no_missing <- col_desc[c$no_missing,]
@@ -147,4 +147,24 @@ numeric_fit_time <- Sys.time() - old
 print(numeric_fit_time)
 print(numeric.fit)
 ```
+
+
+```{r fit_all_features, cache=TRUE }
+set.seed(2468)
+old <- Sys.time()
+all.fit <- train(classe ~ ., 
+                data=training.all,
+                method = 'rf',
+                trControl = trainControl(method='cv',
+                                         number=5))
+all_fit_time <- Sys.time() - old
+```
+
+```{r}
+print(all_fit_time)
+print(all.fit)
+```
+
+The random forest model trained with all 52 numeric and integer predictors has the best in-sample accuracy 99.11 %, but was only slightly better than a random forest trained on only the 27 numeric columns.
+
 
