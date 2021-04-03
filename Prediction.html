@@ -381,6 +381,7 @@ summary {
 
 <div id="reading-the-data" class="section level1">
 <h1>Reading the data</h1>
+<p>The data for this project come from this source: <a href="http://groupware.les.inf.puc-rio.br/har" class="uri">http://groupware.les.inf.puc-rio.br/har</a>.</p>
 <pre class="r"><code>library(dplyr)
 library(caret)
 training_raw &lt;- read.csv(&quot;data/pml-training.csv&quot;)
@@ -437,8 +438,11 @@ head(numeric_only)</code></pre>
 <p>The first 4 integer columns x through num_window appear to be record keeping rather that physical measurements of activity. So we will exclude these 4.</p>
 <pre class="r"><code>int_only &lt;- int_only[-1:-4,]</code></pre>
 <p>That leaves us with 25 integer columns as candidate features and 27 numeric columns as candidate features. All of these columns have no missing data.</p>
-<p>Since there are many predictor variables based on physical measurements, we can try alternate models based on: 1. 25 integer variables only 2. 27 numeric variables only 3. 52 numeric and integer variables</p>
-<p>Cross validation and measuring in-sample accuracy should help us choose between these alternate models.</p>
+<p>Since there are many predictor variables based on physical measurements, we can try alternate models based on:</p>
+<pre><code>1. 25 integer variables only
+2. 27 numeric variables only
+3. 52 numeric and integer variables</code></pre>
+<p>Training with cross validation and measuring in-sample accuracy should help us choose between these alternate models.</p>
 <p>We divide the original raw_training data into training and testing sets:</p>
 <pre class="r"><code>set.seed(12345)
 inTrain &lt;- createDataPartition(raw$classe, p=0.70, list=FALSE)
@@ -554,7 +558,7 @@ all_fit_time &lt;- Sys.time() - old</code></pre>
 ## 
 ## Accuracy was used to select the optimal model using the largest value.
 ## The final value used for the model was mtry = 27.</code></pre>
-[1] 0.9611281 [1] 0.9911917 [1] 0.9914828 <!-- html table generated in R 3.6.3 by xtable 1.8-4 package --> <!-- Sat Apr 03 16:39:54 2021 -->
+[1] 0.9611281 [1] 0.9911917 [1] 0.9914828 <!-- html table generated in R 3.6.3 by xtable 1.8-4 package --> <!-- Sat Apr 03 17:27:35 2021 -->
 <table border="1">
 <tr>
 <th>
@@ -577,10 +581,10 @@ Traning_Time
 25 integer columns
 </td>
 <td align="right">
-0.96
+0.9611
 </td>
 <td align="right">
-3.63
+3.6329
 </td>
 </tr>
 <tr>
@@ -591,10 +595,10 @@ Traning_Time
 27 numeric columns
 </td>
 <td align="right">
-0.99
+0.9912
 </td>
 <td align="right">
-3.72
+3.7189
 </td>
 </tr>
 <tr>
@@ -605,10 +609,10 @@ Traning_Time
 52 integer + numeric columns
 </td>
 <td align="right">
-0.99
+0.9915
 </td>
 <td align="right">
-7.36
+7.3551
 </td>
 </tr>
 </table>
@@ -616,7 +620,110 @@ Traning_Time
 </div>
 <div id="next-assess-the-out-of-sample-accuracy-for-the-3-models." class="section level2">
 <h2>Next assess the out-of-sample accuracy for the 3 models.</h2>
-<p>We have reserved about 30% of the observations for testing the models.</p>
+<p>We have reserved about 30% of the observations for testing the models. We can use each of the fitted models to predict values for the reserved testing data, and count the number of predictions that match the classe column.</p>
+<pre class="r"><code>integer.predict &lt;- predict(integer.fit, newdata = testing.integer)
+
+integer.result &lt;- data.frame(predicted = integer.predict, actual = testing$classe)
+
+integer.result &lt;- integer.result %&gt;% mutate(correct = predicted==actual)
+
+integer.accuracy &lt;- mean(integer.result$correct)
+integer.accuracy</code></pre>
+<pre><code>## [1] 0.968904</code></pre>
+<pre class="r"><code>numeric.predict &lt;- predict(numeric.fit, newdata = testing.numeric)
+
+numeric.result &lt;- data.frame(predicted = numeric.predict, actual = testing$classe)
+
+numeric.result &lt;- numeric.result %&gt;% mutate(correct = predicted==actual)
+
+numeric.accuracy &lt;- mean(numeric.result$correct)
+numeric.accuracy</code></pre>
+<pre><code>## [1] 0.9954121</code></pre>
+<pre class="r"><code>all.predict &lt;- predict(all.fit, newdata = testing.all)
+
+all.result &lt;- data.frame(predicted = all.predict, actual = testing$classe)
+
+all.result &lt;- all.result %&gt;% mutate(correct = predicted==actual)
+
+all.accuracy &lt;- mean(all.result$correct)
+all.accuracy</code></pre>
+<pre><code>## [1] 0.9949023</code></pre>
+<!-- html table generated in R 3.6.3 by xtable 1.8-4 package -->
+<!-- Sat Apr 03 17:27:36 2021 -->
+<table border="1">
+<tr>
+<th>
+</th>
+<th>
+Predictors_Used
+</th>
+<th>
+In_Sample_Accuracy
+</th>
+<th>
+Traning_Time
+</th>
+<th>
+Out_Of_Sample_Accuracy
+</th>
+</tr>
+<tr>
+<td align="right">
+1
+</td>
+<td>
+25 integer columns
+</td>
+<td align="right">
+0.9611
+</td>
+<td align="right">
+3.6329
+</td>
+<td align="right">
+0.9689
+</td>
+</tr>
+<tr>
+<td align="right">
+2
+</td>
+<td>
+27 numeric columns
+</td>
+<td align="right">
+0.9912
+</td>
+<td align="right">
+3.7189
+</td>
+<td align="right">
+0.9954
+</td>
+</tr>
+<tr>
+<td align="right">
+3
+</td>
+<td>
+52 integer + numeric columns
+</td>
+<td align="right">
+0.9915
+</td>
+<td align="right">
+7.3551
+</td>
+<td align="right">
+0.9949
+</td>
+</tr>
+</table>
+</div>
+<div id="conclusions" class="section level2">
+<h2>Conclusions</h2>
+<p>The random forest prediction algorithm works very well for this data set.</p>
+<p>Based on both the run time and the estimated out-of-sample prediction accuracy, we think the model using the 27 numeric columns is preferred for this data.</p>
 </div>
 </div>
 

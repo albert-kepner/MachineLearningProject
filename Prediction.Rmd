@@ -13,6 +13,8 @@ library(caret)
 
 # Reading the data
 
+The data for this project come from this source: http://groupware.les.inf.puc-rio.br/har. 
+
 ```{r reading_data}
 library(dplyr)
 library(caret)
@@ -74,11 +76,12 @@ no missing data.
 
 Since there are many predictor variables based on physical measurements, we can
 try alternate models based on:
-1. 25 integer variables only
-2. 27 numeric variables only
-3. 52 numeric and integer variables
 
-Cross validation and measuring in-sample accuracy should help us choose between
+    1. 25 integer variables only
+    2. 27 numeric variables only
+    3. 52 numeric and integer variables
+
+Training with cross validation and measuring in-sample accuracy should help us choose between
 these alternate models.
 
 We divide the original raw_training data into training and testing sets:
@@ -235,4 +238,9 @@ library(xtable)
 xt <- xtable(SummaryFrame, digits=4)
 print(xt, type="html")
 ```
+
+## Conclusions
+The random forest prediction algorithm works very well for this data set.
+
+Based on both the run time and the estimated out-of-sample prediction accuracy, we think the model using the 27 numeric columns is preferred for this data.
 
