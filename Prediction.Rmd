@@ -1,0 +1,85 @@
+---
+title: "Prediction Assignment Writeup"
+author: "Al Kepner"
+date: "3/29/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(caret)
+```
+
+# Reading the data
+
+```{r reading_data}
+library(dplyr)
+library(caret)
+training_raw <- read.csv("data/pml-training.csv")
+testing_raw <- read.csv("data/pml-testing.csv")
+raw <- training_raw
+
+```
+
+
+We note that we have a lot of columns (160) from which to choose features for prediction.
+
+Some of the columns contain a lot of NA values. Some contain mostly blanks or garbage.
+
+For example:
+summary(raw$amplitude_yaw_forearm)
+        #DIV/0!    0.00 
+  19216      84     322 
+  
+  Many or most of the columns that are classed as factors by default are numeric data with some corrupt or missing values not marked as NA.
+  
+As a starting point we can look at a subset of the columns that contain only numbers with no missing values.
+
+
+## Summarize column types and completeness of data by column.
+```{r summarize_columns}
+col_desc <- data.frame(name = names(raw), 
+                       index = seq_along(names(raw)), 
+                       class = class, 
+                       no_missing = !is_na)
+head(col_desc)
+```
+
+## Select subsets of columns based no missing data and integer or numeric content
+```{r select_subsets)}
+c <- col_desc
+no_missing <- col_desc[c$no_missing,]
+int_only <- no_missing[no_missing$class=="integer",]
+head(int_only)
+numeric_only <- no_missing[no_missing$class=="numeric",]
+head(numeric_only)
+```
+
+So we have identified which columns contain only numeric or integer data with
+no missing values.
+
+The first 4 integer columns x through num_window appear to
+be record keeping rather that physical measurements of activity.
+So we will exclude these 4.
+```{r exclude_record_keeping}
+int_only <- int_only[-1:-4,]
+```
+
+That leaves us with 25 integer columns as candidate features
+and 27 numeric columns as candidate features. All of these columns have
+no missing data.
+
+We plan to start creating a prediction model with the integer features only.
+
+Since there are many predictor variables based on physical measurements, we can
+try alternate models based on:
+1) 25 integer variables only
+2) 27 numeric variables only
+3) 52 numeric and integer variables
+
+Cross validation and measuring in-sample accuracy should help us choose between
+these alternate models.
+
+We divide the original raw_training data into trainging an testing sets:
+
