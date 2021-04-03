@@ -388,7 +388,10 @@ testing_raw &lt;- read.csv(&quot;data/pml-testing.csv&quot;)
 raw &lt;- training_raw</code></pre>
 <p>We note that we have a lot of columns (160) from which to choose features for prediction.</p>
 <p>Some of the columns contain a lot of NA values. Some contain mostly blanks or garbage.</p>
-<p>For example: summary(raw$amplitude_yaw_forearm) #DIV/0! 0.00 19216 84 322</p>
+<p>For example:</p>
+<pre class="r"><code>summary(raw$amplitude_yaw_forearm)</code></pre>
+<pre><code>##         #DIV/0!    0.00 
+##   19216      84     322</code></pre>
 <p>Many or most of the columns that are classed as factors by default are numeric data with some corrupt or missing values not marked as NA.</p>
 <p>As a starting point we can look at a subset of the columns that contain only numbers with no missing values.</p>
 <div id="summarize-column-types-and-completeness-of-data-by-column." class="section level2">
@@ -408,8 +411,8 @@ head(col_desc)</code></pre>
 ## cvtd_timestamp             cvtd_timestamp     5  factor       TRUE
 ## new_window                     new_window     6  factor       TRUE</code></pre>
 </div>
-<div id="select-subsets-of-columns-based-no-missing-data-and-integer-or-numeric-content" class="section level2">
-<h2>Select subsets of columns based no missing data and integer or numeric content</h2>
+<div id="select-subsets-of-columns-based-on-no-missing-data-and-integer-or-numeric-content" class="section level2">
+<h2>Select subsets of columns based on no missing data and integer or numeric content</h2>
 <pre class="r"><code>c &lt;- col_desc
 no_missing &lt;- col_desc[c$no_missing,]
 int_only &lt;- no_missing[no_missing$class==&quot;integer&quot;,]
@@ -551,6 +554,69 @@ all_fit_time &lt;- Sys.time() - old</code></pre>
 ## 
 ## Accuracy was used to select the optimal model using the largest value.
 ## The final value used for the model was mtry = 27.</code></pre>
+[1] 0.9611281 [1] 0.9911917 [1] 0.9914828 <!-- html table generated in R 3.6.3 by xtable 1.8-4 package --> <!-- Sat Apr 03 16:39:54 2021 -->
+<table border="1">
+<tr>
+<th>
+</th>
+<th>
+Predictors_Used
+</th>
+<th>
+In_Sample_Accuracy
+</th>
+<th>
+Traning_Time
+</th>
+</tr>
+<tr>
+<td align="right">
+1
+</td>
+<td>
+25 integer columns
+</td>
+<td align="right">
+0.96
+</td>
+<td align="right">
+3.63
+</td>
+</tr>
+<tr>
+<td align="right">
+2
+</td>
+<td>
+27 numeric columns
+</td>
+<td align="right">
+0.99
+</td>
+<td align="right">
+3.72
+</td>
+</tr>
+<tr>
+<td align="right">
+3
+</td>
+<td>
+52 integer + numeric columns
+</td>
+<td align="right">
+0.99
+</td>
+<td align="right">
+7.36
+</td>
+</tr>
+</table>
+<p>The random forest model trained with all 52 numeric and integer predictors has the best in-sample accuracy of 99.14 %, but was only slightly better than a random forest trained on only the 27 numeric columns. For a larger data set we might prefer the model using only 27 predictors, Since the training time was approximately doubled with 52 predictors.</p>
+</div>
+<div id="next-assess-the-out-of-sample-accuracy-for-the-3-models." class="section level2">
+<h2>Next assess the out-of-sample accuracy for the 3 models.</h2>
+<p>We have reserved about 30% of the observations for testing the models.</p>
 </div>
 </div>
 

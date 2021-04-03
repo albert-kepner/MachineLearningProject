@@ -165,6 +165,30 @@ print(all_fit_time)
 print(all.fit)
 ```
 
-The random forest model trained with all 52 numeric and integer predictors has the best in-sample accuracy 99.11 %, but was only slightly better than a random forest trained on only the 27 numeric columns.
+```{r show_table, echo=FALSE, results="asis"}
 
+i <- integer.fit$results
+i_acc <- i[1,2]
+i_acc
 
+n <- numeric.fit$results
+n_acc <- n[2,2]
+n_acc
+
+a <- all.fit$results
+a_acc <- a[2,2]
+a_acc
+Predictors_Used <- c("25 integer columns", "27 numeric columns", "52 integer + numeric columns")
+Accuracy <- c(i_acc, n_acc, a_acc)
+Traning_Time <- c(integer_fit_time, numeric_fit_time, all_fit_time)
+SummaryFrame <- data.frame(Predictors_Used=Predictors_Used, In_Sample_Accuracy=Accuracy, Traning_Time)
+library(xtable)
+xt <- xtable(SummaryFrame)
+print(xt, type="html")
+```
+
+The random forest model trained with all 52 numeric and integer predictors has the best in-sample accuracy of 99.14 %, but was only slightly better than a random forest trained on only the 27 numeric columns. For a larger data set we might prefer the model using only 27 predictors, Since the training time was approximately doubled with 52 predictors.
+
+## Next assess the out-of-sample accuracy for the 3 models.
+
+We have reserved about 30% of the observations for testing the models.
