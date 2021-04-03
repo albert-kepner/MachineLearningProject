@@ -118,7 +118,7 @@ a_acc
 Predictors_Used <- c("25 integer columns", "27 numeric columns", "52 integer + numeric columns")
 Accuracy <- c(i_acc, n_acc, a_acc)
 Traning_Time <- c(integer_fit_time, numeric_fit_time, all_fit_time)
-SummaryFrame <- data.frame(Predictors_Used=Predictors_Used, Accuracy=Accuracy, Traning_Time)
+SummaryFrame <- data.frame(Predictors_Used=Predictors_Used, In_Sample_Accuracy=Accuracy, Traning_Time)
 
 
 library(xtable)
@@ -126,24 +126,14 @@ xt <- xtable(SummaryFrame)
 print(xt, type="html")
 
 
-numeric.predict <- predict(numeric.fit, newdata = testing.numeric)
+integer.predict <- predict(integer.fit, newdata = testing.integer)
 
-numeric.result <- data.frame(predicted = numeric.predict, actual = testing$classe)
+integer.result <- data.frame(predicted = integer.predict, actual = testing$classe)
 
-numeric.result <- numeric.result %>% mutate(correct = predicted==actual)
+integer.result <- integer.result %>% mutate(correct = predicted==actual)
 
-numeric.accuracy <- mean(test_result$correct)
-numeric.accuracy
-
-
-numeric.predict <- predict(numeric.fit, newdata = testing.numeric)
-
-numeric.result <- data.frame(predicted = numeric.predict, actual = testing$classe)
-
-numeric.result <- numeric.result %>% mutate(correct = predicted==actual)
-
-numeric.accuracy <- mean(test_result$correct)
-numeric.accuracy
+integer.accuracy <- mean(integer.result$correct)
+integer.accuracy
 
 
 numeric.predict <- predict(numeric.fit, newdata = testing.numeric)
@@ -152,5 +142,20 @@ numeric.result <- data.frame(predicted = numeric.predict, actual = testing$class
 
 numeric.result <- numeric.result %>% mutate(correct = predicted==actual)
 
-numeric.accuracy <- mean(test_result$correct)
+numeric.accuracy <- mean(numeric.result$correct)
 numeric.accuracy
+
+
+all.predict <- predict(all.fit, newdata = testing.all)
+
+all.result <- data.frame(predicted = all.predict, actual = testing$classe)
+
+all.result <- all.result %>% mutate(correct = predicted==actual)
+
+all.accuracy <- mean(all.result$correct)
+all.accuracy
+
+
+out_accuracy <- c(integer.accuracy, numeric.accuracy, all.accuracy)
+SummaryFrame <- SummaryFrame %>% mutate(Out_Of_Sample_Accuracy = out_accuracy)
+SummaryFrame
