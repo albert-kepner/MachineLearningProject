@@ -2,6 +2,7 @@ library(dplyr)
 library(caret)
 
 
+
 training_raw <- read.csv("data/pml-training.csv")
 testing_raw <- read.csv("data/pml-testing.csv")
 raw <- training_raw
